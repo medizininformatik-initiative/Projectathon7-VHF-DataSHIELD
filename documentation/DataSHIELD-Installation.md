@@ -1,6 +1,8 @@
 # DataSHIELD Installation
 
-## Organizational Requirements and "Installation"
+There are still some aspects missing and questions to be clarified. They have been collected in this [document](open-aspects.md).
+
+## Organizational Requirements and Documentations
 
 ### Privacy Documentation, DSFA, et al.
 Each information processing system used at the hospital requires a concept w.r.t. data privacy and security but also operational procedures.
@@ -12,10 +14,13 @@ There are documents representing the global part of the overall concept which ar
 You need to have specific credentials to access these documents. In case you already have access, you will find these documents 
 following the internal menu path (see menu on the left hand side at the TMF Sharepoint user interface) Taskforces / TF Verteilte Analysen / 05_HandreichungDataSHIELD 
 
-### Non Disclosure Control
+### Non-Disclosure Control
 tba
 
 ## Technical Requirements and Installation
+The MII supports a chat for DataSHIELD: https://mii.zulipchat.com/#narrow/stream/313115-DataSHIELD
+
+Official documentation: https://opaldoc.obiba.org/en/dev/admin/installation.html
 
 ### Overview
 The architecture spans over three networks. 
@@ -28,25 +33,22 @@ The architecture spans over three networks.
 Each network is separated and secured by firewalls.
 In the following, we will refer to the second network for the DataSHIELD installation.
 
-### DataSHIELD Installation
-There is a Docker-Image-based installation available. Each component is represented by a single container. The simplest way to stick and run them together, is to use Docker-Compose. At the Leipzig University, we have used the following bash script to set up all components.
+### Technical Requirements
+The [official documentation](https://opaldoc.obiba.org/en/dev/admin/installation.html) recommends to set up the virtual or physical machine as follows.
 
-Install the Docker framework first. Then create the following script named by "foo-bar".
+| Component | Recommendation |
+|-----------|----------------|
+| CPU | Higher server-grade or high-end consumer-grade processor |
+| HDD | 8 GB or more |
+| RAM | Min. 4GB, recommended > 8GB |
+
+### DataSHIELD Installation
+There are different ways to install DataSHIELD components. First, you can manually install the infrastructure component by component. 
+Second, there are RPM package available. Third and the best choice is (my view) to use Docker Images. Each component is represented by 
+a single image for which a container is then created. The simplest way to stick and run them together, is to use Docker-Compose. 
+
+At the Leipzig University, we have used the following bash script to set up all components. Install the Docker framework first. Then create the following script named by "foo-bar".
 ```bash
 foo bar
 ```
 
-### More Information and Help
-The MII supports a chat for DataSHIELD: https://mii.zulipchat.com/#narrow/stream/313115-DataSHIELD
-
-Official documentation: https://opaldoc.obiba.org/en/dev/admin/installation.html
-
-## Open Questions and Aspects
-- **restrictive vs. permissive mode**: The difference is that the first allows to execute very few remote functions making an analysis nearly impossible, whereas the second necessitates often a non-disclosure-control statement. 
-  - Which mode of operation (or access and execution mode) should be used is specific at infrastructure level not at project level. 
-  - https://data2knowledge.atlassian.net/wiki/spaces/DSDEV/pages/714768398/Disclosure+control
-  - We would argue for the permissive mode.
-- We need to adapt the available non-disclosure-control for R server package dsBinVal
-- What is the overall procedure to get the non-disclosure control accepted locally? 
-- Versioning of DataSHIELD installation and packages (dsBase and dsBinVal)
-- 

@@ -23,7 +23,7 @@ DataSHIELD infrastructure consists roughly of three components at each site, an 
 
 More general information can be obtained from https://www.datashield.org/
 
-We have collected some specific information about technical and "organizational" [installation](DataSHIELD-Installation.md).
+We have collected some specific information about technical and "organizational" [installation](documentation/DataSHIELD-Installation.md).
 
 ## Prerequisites, you should know about
 Before you start working with this source code you need to know
