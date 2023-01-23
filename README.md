@@ -37,6 +37,8 @@ Before you start working with this source code you need to know
 
 The user should have enough permissions to take over the different tasks. The permissions you need differ from task to task. The installation of required packages necessitates administrator access, whereas the data import requires permissions to create new projects and having read/write access to it.
 
+Please specify these parameters either in the .Rprofile or directly each of the R scripts directly.
+
 ## 1) Installation of required R packages
 Before you import data, you need to configure and add the required R packages to the R server. This includes the following R packages:
 - DsBase (6.2.0) -https://github.com/datashield/dsBase
@@ -48,7 +50,7 @@ There is a configuration (you need to have permissions to do that) allowing you 
 There is also an R script that installs the two R packages listed above on the R server of your DataSHIELD installation.
 You can basically go to the directory [installation](./installation), open the R script and run it (executing it on the commend line or within your preferred IDE). 
 
-**TO DO**: Please configure the access to the OPAL server with URL and credentials (user name and password).
+**TO DO**: Please configure the access to the OPAL server with URL and credentials (username and password).
 
 **START**: To start the installation via script, please go to and execute the R script [install.packages.R](./installation/install.packages.R) in the directory installation. 
 
@@ -58,11 +60,13 @@ Importing data consists of two steps.
 2) Import the data
 
 ### 2.1 Generate data to be imported
-Please use the data export pipeline that is used in the project () to create the required data. As a result of executing this pipeline, there are two files in comma-separated format (CSV, separator is ";").
+Please use the data export pipeline that is used in the project [Projectathon7-VHF](https://github.com/medizininformatik-initiative/Projectathon7-VHF) to create the required data. As a result of executing this pipeline, there are two files in comma-separated format (CSV, separator is ";").
 - cohort.csv
 - diagnosis.csv
 
 Please provide these data files in a way you have access to it; you need read permissions. You can manage both files locally in a directory or somewhere on a file server you have access to. The data import script requires a direct file within any file system, i.e., managing the files within an object store, such as MinIO, and using URL (https://...) for the access is currently not an option.
+
+Don't change the file structure of the two generated data files 
 
 ### 2.2 Data import
 DataSHIELD internally manages data in projects. A project is basically a "container" for data, such as a database. The projects should be uniquely named; this is mandatory. Each project consists of tables managing the data in tabular format. Each table needs to be uniquely named within a project.
