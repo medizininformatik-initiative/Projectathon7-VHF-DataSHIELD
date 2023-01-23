@@ -2,11 +2,11 @@
 # Medical Informatics Initiative
 # 7th Projectathon
 # Project: VHF - DataSHIELD
-# Importing data into OPAL
+# Install packages on the R server required for the VHF analysis
 #
 # Version: 1.0
 # Last Update: 19.01.2023
-# Maintainer: Toralf Kirsten (tkirsten@uni-leipzig.de)
+# Toralf Kirsten (tkirsten@uni-leipzig.de)
 # ################################
 
 require(opalr)
@@ -15,9 +15,9 @@ require(opalr)
 # Connect to the OPAL server
 # You need a user account with permissions to create a project and add data
 # Don't use self signed certificates (for the OPAL server) - it doesn't work properly
-user.name <- "administrator"
-pass.word <- "password"
-opal.server.url <- "https://mds-compute-1.medizin.uni-leipzig.de"
+user.name <- !is.na(Sys.getenv("OPAL_USER_NAME", NA))
+pass.word <- !is.na(Sys.getenv("OPAL_USER_PASSWORD", NA))
+opal.server.url <- !is.na(Sys.getenv("OPAL_SERVER_URL", NA))
 
 # Login to the OPAL server
 connection <- opal.login(username = user.name,
@@ -28,8 +28,8 @@ connection <- opal.login(username = user.name,
 dsadmin.install_github_package(connection, pkg = "dsBase", username = "datashield", ref = "v6.2.0", profile = "default")
 dsadmin.install_github_package(connection, pkg = "dsBinVal", username = "difuture-lmu", ref = "main", profile = "default")
 
-# Logout
-dsadmin.package_descriptions(connection, profile = "default")
+# Logout from the OPAL server
+opal.logout(connection)
 
 # Clean up
 rm(list = ls())

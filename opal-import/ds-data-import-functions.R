@@ -1,3 +1,5 @@
+# This function creates a pid vector for each patient
+#
 generate.and.join.pid <- function(data.cohort, x) {
   pat <- unique(data.cohort[,c(1,13)])
   pat <- pat[order(pat$subject),]
