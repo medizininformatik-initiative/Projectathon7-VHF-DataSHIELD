@@ -1,0 +1,33 @@
+# ################################
+# Medical Informatics Initiative
+# 7th Projectathon
+# Project: VHF - DataSHIELD
+# Environment for all R-based processes
+#
+# Version: 1.0
+# Last Update: 22.01.2023
+# Maintainer: Toralf Kirsten (tkirsten@uni-leipzig.de)
+# ################################
+
+# Name and location of the input file Cohort.csv
+# This file needs to be generated before by the retrieval pipeline
+# of the GitHub project medizininformatik-initiative/Projectathon7-VHF
+Sys.setenv(FILE_NAME_LOC_COHORT = "./Cohort.csv")
+
+# Name and location of the input file Diagnoses.csv
+# This file needs to be generated before by the retrieval pipeline
+# of the GitHub project medizininformatik-initiative/Projectathon7-VHF
+Sys.setenv(FILE_NAME_LOC_DIAGNOSIS = "./Diagnoses.csv")
+
+# Name of the user that should be used to import data and manages
+# projects and install required packages on the R server. The user
+# necessitates to the enough permissions to execute these tasks.
+Sys.setenv(OPAL_USER_NAME = "administrator")
+
+# Password of the user that should be used to import data and manages
+# projects and install required packages on the R server
+Sys.setenv(OPAL_USER_PASSWORD = "password")
+
+# URL under which the OPAL server at the site is accessible. Please
+# include the port unless it uses a standard port, such as 80 and 443.
+Sys.setenv(OPAL_SERVER_URL = "https://foo-bar.de")

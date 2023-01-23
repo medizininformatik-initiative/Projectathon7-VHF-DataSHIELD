@@ -2,12 +2,11 @@
 # Medical Informatics Initiative
 # 7th Projectathon
 # Project: VHF - DataSHIELD
-# Importing data into OPAL
+# Cleaning up project VHF and data from OPAL
 #
 # Version: 1.0
 # Last Update: 19.01.2023
-# Maintainer: Toralf Kirsten (tkirsten@uni-leipzig.de)
-# Reference: https://opaldoc.obiba.org/en/dev/cookbook/import-data/r.html
+# Toralf Kirsten (tkirsten@uni-leipzig.de)
 # ################################
 
 # Load opal-for-r library
@@ -17,9 +16,9 @@ require(opalr)
 # Connect to the OPAL server
 # You need a user account with permissions to create a project and add data
 # Don't use self signed certificates (for the OPAL server) - it doesn't work properly
-user.name <- "administrator"
-pass.word <- "password"
-opal.server.url <- "https://mds-compute-1.medizin.uni-leipzig.de"
+user.name <- !is.na(Sys.getenv("OPAL_USER_NAME", NA))
+pass.word <- !is.na(Sys.getenv("OPAL_USER_PASSWORD", NA))
+opal.server.url <- !is.na(Sys.getenv("OPAL_SERVER_URL", NA))
 
 # Login to the OPAL server
 connection <- opal.login(username = user.name,
