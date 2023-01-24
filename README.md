@@ -23,12 +23,7 @@ DataSHIELD infrastructure consists roughly of three components at each site, an 
 
 More general information can be obtained from https://www.datashield.org/
 
-In case you need or want to have more information about installation and data import, please refer to 
-- https://opaldoc.obiba.org/en/dev/r-user-guide/datashield.html
-- https://opaldoc.obiba.org/en/dev/admin/installation.html
-- https://opaldoc.obiba.org/en/dev/cookbook/import-data/r.html
-
-Note, following the second link, there is a Docker Image based installation description. Docker Compose makes it quite easy to install and maintain the DataSHIELD infrastructure. 
+We have collected some specific information about technical and "organizational" [installation](documentation/DataSHIELD-Installation.md).
 
 ## Prerequisites, you should know about
 Before you start working with this source code you need to know
@@ -79,6 +74,9 @@ The data import script does the following:
 - creates the project VHF in your OPAL server
 - creates the three tables Patient, Condition, and Diagnosis
 - saves the data into the three tables
+
+**FURTHER INFO**: Your will find some further information about data import
+- https://opaldoc.obiba.org/en/dev/cookbook/import-data/r.html
 
 **TO DO**: Please configure the access to the OPAL server with URL and credentials (user name and password).
 
