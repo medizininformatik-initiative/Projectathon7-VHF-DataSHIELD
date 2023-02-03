@@ -10,20 +10,20 @@ It contains source code, mainly in R, for
 - the clean-up pipeline removing all imported data and created tabular structures from the OPAL server
 
 ## Who should read it and prior required knowledge
-In the following, you will find instructions, mainly for the three initial steps, namely installation of required R packages, import data, and cleaning up (if necessary). This should be of interest for **members of Data Integration Centers**.
+In the following, you will find instructions, mainly for the three initial steps, namely installation of required R packages, import data, and cleaning up (if necessary). This should be of interest for **members of Data Integration Centers** and other interested persons.
 
 Everybody, who would like to use the source code should familiar with running R source code. It is not necessary that you are a professional R programmer. However, you should be able to set the local configuration and execute the source code from an R client. You can use any client you want ranging from the command line (which I prefer) over RStudio, Eclipse, Intellij Idea, and any other IDE (Integrated Development Environment) with a plug-in for R.  
 
 Please follow the steps below. In case you have serious questions or find bugs (which I don't believe), please raise issues with a sufficient description.
 
 ## Very quick Overview about DataSHIELD
-DataSHIELD is a technical infrastructure allowing you to analyze data (not only medical data) in a distributed but interactive mode without having direct access to data on individual level. As a scientist, you write R code analyzing the data at different sites. In this source code, the analysis functions are remotely executed, i.e., at each site the scientist is connected to. The results are then transferred to the scientist in an aggregated form, i.e., not on individual level anymore. 
+DataSHIELD is a technical infrastructure allowing you to analyze data (not only medical data) in a distributed but interactive mode without having direct access to data on individual level. As a scientist, you write R code analyzing the data at different sites. In this source code, the analysis functions are remotely executed, i.e., at each site the scientist is connected to. The results are then transferred to the scientist in an aggregated form, i.e., not on individual level anymore and can then be further processed or visualized. 
 
 DataSHIELD infrastructure consists roughly of three components at each site, an OPAL server, an R server, and database(s). The OPAL server is the management component. It has a web-based user interface but also allows HTTP-based function calls. It internally communicates with the database(s) and the R server. While the R server takes over computational tasks, the database(s) manage(s) data.
 
-More general information can be obtained from https://www.datashield.org/
+More and general information can be obtained from the official DataSHIELD documentation and website at https://www.datashield.org/
 
-We have collected some specific information about technical and "organizational" [installation](documentation/DataSHIELD-Installation.md).
+Moreover, we have collected some specific information about technical and "organizational" [installation](documentation/DataSHIELD-Installation.md).
 
 ## Prerequisites, you should know about
 Before you start working with this source code you need to know
@@ -40,7 +40,7 @@ Before you import data, you need to configure and add the required R packages to
 - dsBinVal (1.01) https://github.com/difuture-lmu/dsBinVal
 
 There are different ways allowing you to install the packages. The possibly simplest way is to use the web-base user interface of the OPAL server. 
-There is a configuration (you need to have permissions to do that) allowing you to see all already installed packages available in specific a version and to upload and, thus, install a new package. Don't install the same package in different version; this is not handleable by the R server. In this case, the older version will be updated by the newer version with potential site effects to current users and programs using this package.
+There is a configuration page (you need to have permissions to do that) allowing you to see all already installed packages available in specific a version and to upload and, thus, install a new package. Don't install the same package in a different version; this is not handleable by the R server. In this case, the older version will be updated by the newer version with potential site effects to current users and programs using this package.
 
 There is also an R script that installs the two R packages listed above on the R server of your DataSHIELD installation.
 You can basically go to the directory [installation](./installation), open the R script and run it (executing it on the commend line or within your preferred IDE). 
@@ -61,7 +61,7 @@ Please use the data export pipeline that is used in the project [Projectathon7-V
 
 Please provide these data files in a way you have access to it; you need read permissions. You can manage both files locally in a directory or somewhere on a file server you have access to. The data import script requires a direct file within any file system, i.e., managing the files within an object store, such as MinIO, and using URL (https://...) for the access is currently not an option.
 
-Don't change the file structure of the two generated data files 
+The structure of the exported data is [separately described](./documentation/Structure-of-Import-Data.md). Don't change the file structure of the two generated data files 
 
 ### 2.2 Data import
 DataSHIELD internally manages data in projects. A project is basically a "container" for data, such as a database. The projects should be uniquely named; this is mandatory. Each project consists of tables managing the data in tabular format. Each table needs to be uniquely named within a project.
@@ -83,7 +83,7 @@ The data import script does the following:
 **START**: To start the data import, execute the R script [ds-data-import.R](./opal-import/ds-data-import.R) in the directory opal-import. 
 
 ## 3) Clean-up
-If the data import process is canceled in between or finishes with success - please check the command line output for that - there is the need to remove the project, created tables, and loaded data. This is called clean-up. There are multiple ways to do that. 
+If the data import process is canceled in between or finishes without success - please check the command line output for that - there is the need to remove the project, created tables, and loaded data. This is called clean-up. There are multiple ways to do that. 
 First, you can execute this clean-up manually using the OPAL web interface. There is an option allowing you to remove the complete project including all tables and data. You need enough permissions to do that. Second, there is a script called [ds-remove-project.R](./clean-up/ds-remove-project.R) in the directory clean-up. Executing this script will remove the VHF project.
 
 **TO DO**: Please configure the access to the OPAL server with URL and credentials (user name and password). 
