@@ -28,7 +28,7 @@ The architecture spans over three networks.
 2) The MEDIC-network contains all storages and information systems integrating clinical data at the DIC. This network contains the DataSHIELD installation.
 3) Part of the DMZ-network is a reverse proxy that is connected to the DataSHIELD installation. A whitelist allows very specifically the access on an IP address basis.
 
-**_It would be good to leave the slide of Mrs Schmidt here._**
+<img src="./network-separation.png" alt="Network Separation Model" style="float: left; margin-right: 10px" /> 
 
 Each network is separated and secured by firewalls.
 In the following, we will refer to the second network for the DataSHIELD installation.
