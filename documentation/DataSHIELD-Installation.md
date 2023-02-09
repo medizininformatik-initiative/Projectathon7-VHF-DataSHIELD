@@ -30,6 +30,8 @@ The architecture spans over three networks.
 
 <img src="./network-separation.png" alt="Network Separation Model" style="float: left; margin-right: 10px" /> 
 
+Figure 2: High-level Network Architecture (provided by Carolin Schmidt, LMU, DIFUTURE) 
+
 Each network is separated and secured by firewalls.
 In the following, we will refer to the second network for the DataSHIELD installation.
 
