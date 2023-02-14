@@ -6,12 +6,19 @@ There are still some aspects missing and questions to be clarified. They have be
 
 ### 1.1 Privacy Documentation, DSFA, et al.
 Each information processing system used at the hospital requires a concept w.r.t. data privacy and security but also operational procedures.
-The concept consists of a **global part** that is generic in a way that it can be used in nearly every hospital, and a **local part** that takes all specifics of the current site.
+Figure 1 provides an overview about the overall documentation that is needed at each participating location. It consists of multiple documents including the data protection concept, 
+the IT security concept, and the operating concept. The first (1, numbered within the figure) describes the requirements and basic principles of DataSHIELD and its use at the location.
+Therefore, its general conditions are the basis for the IT security concept (2) which again has a strong impact on the operating concept (3). This concept consists of two parts, a global and a local part.
+The global part, the so-called operation manual, is generic in way that it can be reused by other sites. Hence, it is general enough and discussed with all partners within the MII.
+The local part conversely maps the global manual to the local set up and, hence, describes the local configuration. Basic principles from the data protection concept are used to create
+the entry for central procedure directory (5, ref. Art. 30 GDPR) for which the operating concept is an annex. 
 
-**_It would be good to leave the slide of Mrs Schmidt here._**
+<img src="./shared-documentation-concept.png" alt="Shared Documentation Concept" style="float: left; margin-right: 10px" />
 
-There are documents representing the global part of the overall concept which are available within the TMF Sharepoint. 
-You need to have specific credentials to access these documents. In case you already have access, you will find these documents 
+Figure 1: Shared Documentation Concept (provided by Carolin Schmidt, LMU, DIFUTURE)
+
+There are templates available for all documents sketched in the paragraph above. In particular, there is a documents representing the operation manual (global part) of the operating concept. 
+All documents are available on the TMF Sharepoint. You need specific credentials to access these documents. In case you already have access, you will find these documents 
 following the internal menu path (see menu on the left hand side at the TMF Sharepoint user interface) Taskforces / TF Verteilte Analysen / 05_HandreichungDataSHIELD 
 
 ### 1.2 Non-Disclosure Control
@@ -23,7 +30,7 @@ The MII supports a chat for DataSHIELD: https://mii.zulipchat.com/#narrow/stream
 Official documentation: https://opaldoc.obiba.org/en/dev/admin/installation.html
 
 ### 2.1 Overview
-The architecture spans over three networks. 
+Figure 2 shows the typical network architecture when DataSHIELD is used. It spans over three networks. 
 1) The clinical network consists of information systems producing and let capture patient data. Data at this level is the source and need to be transferred to the next network.
 2) The MEDIC-network contains all storages and information systems integrating clinical data at the DIC. This network contains the DataSHIELD installation.
 3) Part of the DMZ-network is a reverse proxy that is connected to the DataSHIELD installation. A whitelist allows very specifically the access on an IP address basis.
@@ -49,7 +56,8 @@ There are different ways to install DataSHIELD components. First, you can manual
 Second, there are RPM package available. Third and the best choice is (my view) to use Docker Images. Each component is represented by 
 a single image for which a container is then created. The simplest way to stick and run them together, is to use [Docker-Compose](https://docs.docker.com/compose/install/). 
 
-At the Leipzig University, we have used the following bash script to set up all components. Install the Docker framework first. Then create the following script named by "foo-bar".
+At the Leipzig University, we have used the following bash script to set up all components. Install the Docker framework first. 
+Then create the following script named by "data-shield-compose.yml".
 ```bash
 version: '3'
 services:
