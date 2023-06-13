@@ -25,12 +25,14 @@ More and general information can be obtained from the official DataSHIELD docume
 
 Moreover, we have collected some specific information about technical and "organizational" [installation](documentation/DataSHIELD-Installation.md).
 
-## Prerequisites, you should know about
+## Prerequisites, you should know about (incl. user and user rights)
 Before you start working with this source code you need to know
 - there is a DataShield instance at your site available (and it is already working)
 - the parameters allowing you to access the OPAL server (URL, user, and password)
 
-The user should have enough permissions to take over the different tasks. The permissions you need differ from task to task. The installation of required packages necessitates administrator access, whereas the data import requires permissions to create new projects and having read/write access to it.
+There are two different user credentials (user account + password) necessary. First, there is a user account required to fulfill all initial preparatory and administrative tasks. These tasks include the set up of the project, import the data, and manage analysis packages. Secondly, there is a user account required allowing to access and,thus, analyze the provided data. While the first is (should be) only internally used, the login name and the password is (only) known by the local DataSHIELD administrator.  
+This administrative user should have enough permissions to execute the different tasks. The permissions this user need differ from task to task. The installation of required packages necessitates administrator access, whereas the data import is limited to permissions allowing to create new projects and having read/write access to it. 
+The user credentials and the corresponding permissions for the analysis should be different from the administrative user. User name and password is provided to the external scientist to access the locally managed data within OPAL - only the project the data has been imported to. Similar to user name and password, the permissions of this analysis user are also different.  
 
 Please specify these parameters either in the .Rprofile or directly each of the R scripts directly.
 
@@ -82,7 +84,10 @@ The data import script does the following:
 
 **START**: To start the data import, execute the R script [ds-data-import.R](./opal-import/ds-data-import.R) in the directory opal-import. 
 
-## 3) Clean-up
+## 3) Data analysis
+The data analysis is executed by the scientist who has requested the data. Normally, this person or person group is externally and, thus, not part of the own institution. The analysis script for the VHF use case can be found in the folder [data-analysis](./data-analysis). Don't run the scripts available there by yourself, please.
+
+## 4) Clean-up
 If the data import process is canceled in between or finishes without success - please check the command line output for that - there is the need to remove the project, created tables, and loaded data. This is called clean-up. There are multiple ways to do that. 
 First, you can execute this clean-up manually using the OPAL web interface. There is an option allowing you to remove the complete project including all tables and data. You need enough permissions to do that. Second, there is a script called [ds-remove-project.R](./clean-up/ds-remove-project.R) in the directory clean-up. Executing this script will remove the VHF project.
 
