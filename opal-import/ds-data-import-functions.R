@@ -11,7 +11,7 @@ generate.and.join.pid <- function(data.cohort, x) {
 }
 
 transform.patient <- function(data.cohort) {
-  data.patient <- unique(data.cohort[,c(1, 13, 14)])
+  data.patient <- unique(data.cohort[,c(1, 12, 15)])
   data.patient <- data.patient[order(data.patient$subject),]
 
   # Generate an independent and surrogate id column
@@ -21,20 +21,21 @@ transform.patient <- function(data.cohort) {
   # Transform the data type
   data.patient$subject <- as.character(data.patient$subject)
   data.patient$gender <- as.character(data.patient$gender)
-  data.patient$birthdate <- as.Date(data.patient$birthdate, format = "%Y-%m-%d")
+  data.patient$age <- as.numeric(data.patient$age)
 
-  colnames(data.patient) <- c("patient_id", "gender", "birthdate", "id", "pid")
+  colnames(data.patient) <- c("patient_id", "gender", "age", "id", "pid")
   return(data.patient)
 }
 
 transform.observation <- function(data.cohort) {
-  data.observation <- unique(data.cohort[,c(1:12, 15, 16)])
+  data.observation <- unique(data.cohort[,c(1:11, 13, 14)])
 
   # Generate an independent and surrogate id column
   data.observation$id <- 1:nrow(data.observation)
   # Transform the data type
   data.observation$subject <- as.character(data.observation$subject)
-  data.observation$NTproBNP.date <- as.Date(data.observation$NTproBNP.date, format = "%Y-%m-%d %H:%M:%S")
+# The next feature has been removed from the data set since it has not been applied for
+# data.observation$NTproBNP.date <- as.Date(data.observation$NTproBNP.date, format = "%Y-%m-%d %H:%M:%S")
   data.observation$encounter.id <- as.character(data.observation$encounter.id)
   data.observation$NTproBNP.valueQuantity.value <- as.numeric(data.observation$NTproBNP.valueQuantity.value)
   data.observation$NTproBNP.valueQuantity.comparator <- as.character(data.observation$NTproBNP.valueQuantity.comparator)
@@ -50,7 +51,7 @@ transform.observation <- function(data.cohort) {
   # Generate the patient identifier as work around for joining using subject with long strings (disclosure risk)
   data.observation <- generate.and.join.pid(data.cohort, data.observation)
 
-  colnames(data.observation) <- c("patient_id", "measurement_date", "encounter_id", "nt_pro_bnp_value",
+  colnames(data.observation) <- c("patient_id", "encounter_id", "nt_pro_bnp_value",
                                   "nt_pro_bnp_comparator", "nt_pro_bnp_value_code", "nt_pro_bnp_value_system",
                                   "nt_pro_bnp_code", "nt_pro_bnp_system", "nt_pro_bnp_unit", "nt_pro_bnp_unit_label",
                                   "nt_pro_bnp_unit_system", "encounter_start", "encounter_end", "id", "pid")
@@ -94,7 +95,7 @@ import.patient <- function (connection, project.name, data.patient) {
     ~name, ~valueType, ~`label:en`, ~`Namespace::Name`, ~unit, ~repeatable, ~index,
     "patient_id", "character", "patient.identifier", NA, NA, 0, 1,
     "gender", "character", "gender", NA, NA, 0, 2,
-    "birthdate", "date", "birthdate", NA, NA, 0, 3,
+    "age", "integer", "age", NA, NA, 0, 3,
     "id", "integer", "id", NA, NA, 0, 4,
     "pid", "integer", "pid", NA, NA, 0, 5
   )
@@ -118,7 +119,7 @@ import.observation <- function(connection, project.name, data.observation) {
     "id", "integer", "id", NA, NA, 0, 15,
     "patient_id", "character", "patient.identifier", NA, NA, 0, 1,
     "pid", "integer", "id", NA, NA, 0, 16,
-    "measurement_date", "date", "measurement.date", NA, NA, 0, 2,
+#    "measurement_date", "date", "measurement.date", NA, NA, 0, 2,
     "nt_pro_bnp_value", "float", "ntprobnp.value", NA, NA, 0, 4,
     "nt_pro_bnp_comparator", "character", "ntprobnp.comparator", NA, NA, 0, 5,
     "nt_pro_bnp_value_code", "character", "ntprobnp.value.code", NA, NA, 0, 6,

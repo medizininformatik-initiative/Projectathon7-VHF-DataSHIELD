@@ -29,16 +29,16 @@ file.name.loc.cohort <- !is.na(Sys.getenv("FILE_NAME_LOC_COHORT", NA))
 file.name.loc.diagnosis <- !is.na(Sys.getenv("FILE_NAME_LOC_DIAGNOSIS", NA))
 
 data.cohort <- read.csv2(file = file.name.loc.cohort, header = T, sep = ";")
-if (ncol(data.cohort) != 16) {
+if (ncol(data.cohort) != 15) {
   stop(paste("The data file \"", file.name.loc.cohort,
-             "\" doesn't have 16 columns. This file doesn't have the structure we expected.\n",
+             "\" doesn't have 15 columns. This file doesn't have the structure we expected.\n",
              "Please make sure this file has the appropriate structure first and then try again."))
 }
 
 data.diagnosis <- read.csv2(file = , file.name.loc.diagnosis, header = T, sep = ";")
 if (ncol(data.diagnosis) != 11) {
   stop(paste("The data file \"", file.name.loc.cohort,
-             "\" doesn't have 16 columns. This file doesn't have the structure we expected.\n",
+             "\" doesn't have 11 columns. This file doesn't have the structure we expected.\n",
              "Please make sure this file has the appropriate structure first and then try again."))
 }
 
