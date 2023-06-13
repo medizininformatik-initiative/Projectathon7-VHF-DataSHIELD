@@ -61,6 +61,16 @@ pass.word <- "top%secret&password"
 opal.server.url <- "https://foo-bar.de"
 ````
 
+### How to execute an R script
+There are different ways to execute R scripts.
+
+- **Command line**: Assuming you have computer available (best would be a Linux box) on that the R base system is installed. Then type the following to execute the script hello-world.R on the command line
+````[bash]
+R --vanilla --no-save < path-to-the-R-file/hello-world.R
+````
+- **R Studio**: Assuming you have [R Studio](https://posit.co/download/rstudio-desktop/) installed on the computer the script should be executed, then open the R Studio, load teh script and execute either the whole script at once or statement by statement (line by line). Please use the menu entry for loading the script and the icons for executing the script or statement.
+
+- **Integrated Development Environment (IDE)**: While many people would argue that R Studio is already an IDE, there are IDE's offering better support, such as git integration, help pages, direct access to foreign source code etc. There are many IDE's available, some of them are free to use. I personally prefer like many other people to use [idea Intellij](https://www.jetbrains.com/idea/) with the R plug-in, but you are definitely free.  
 
 ## 1) Installation of required R packages
 Before you import data, you need to configure and add the required R packages to the R server. This includes the following R packages:
