@@ -25,16 +25,42 @@ More and general information can be obtained from the official DataSHIELD docume
 
 Moreover, we have collected some specific information about technical and "organizational" [installation](documentation/DataSHIELD-Installation.md).
 
-## Prerequisites, you should know about (incl. user and user rights)
+## Prerequisites, you should know about
 Before you start working with this source code you need to know
 - there is a DataShield instance at your site available (and it is already working)
 - the parameters allowing you to access the OPAL server (URL, user, and password)
 
-There are two different user credentials (user account + password) necessary. First, there is a user account required to fulfill all initial preparatory and administrative tasks. These tasks include the set up of the project, import the data, and manage analysis packages. Secondly, there is a user account required allowing to access and,thus, analyze the provided data. While the first is (should be) only internally used, the login name and the password is (only) known by the local DataSHIELD administrator.  
+### User and user permissions
+There are two different user credentials (user account + password) necessary. First, there is a user account required to fulfill all initial preparatory and administrative tasks. These tasks include the set up of the project, import the data, and manage analysis packages. Secondly, there is a user account required allowing to access and,thus, analyze the provided data. While the first is (should be) only internally used, the login name and the password is (only) known by the local DataSHIELD administrator.
+
 This administrative user should have enough permissions to execute the different tasks. The permissions this user need differ from task to task. The installation of required packages necessitates administrator access, whereas the data import is limited to permissions allowing to create new projects and having read/write access to it. 
+
 The user credentials and the corresponding permissions for the analysis should be different from the administrative user. User name and password is provided to the external scientist to access the locally managed data within OPAL - only the project the data has been imported to. Similar to user name and password, the permissions of this analysis user are also different.  
 
-Please specify these parameters either in the .Rprofile or directly each of the R scripts directly.
+Please specify these parameters either in the [.Rprofile](./.RProfile) file 
+
+````[R]
+Sys.setenv(OPAL_USER_NAME = "administrator")
+...
+Sys.setenv(OPAL_USER_PASSWORD = "top%secret&password")
+...
+Sys.setenv(OPAL_SERVER_URL = "https://foo-bar.de")
+````
+
+or directly in each of the R scripts directly by replacing the statement
+
+````[R]
+user.name <- !is.na(Sys.getenv("OPAL_USER_NAME", NA))
+pass.word <- !is.na(Sys.getenv("OPAL_USER_PASSWORD", NA))
+opal.server.url <- !is.na(Sys.getenv("OPAL_SERVER_URL", NA))
+````
+with 
+````[R]
+user.name <- "administrator"
+pass.word <- "top%secret&password"
+opal.server.url <- "https://foo-bar.de"
+````
+
 
 ## 1) Installation of required R packages
 Before you import data, you need to configure and add the required R packages to the R server. This includes the following R packages:
