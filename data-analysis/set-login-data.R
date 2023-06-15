@@ -11,13 +11,13 @@ builder$append(server = project.name,
                url = "",
                user = user.name,
                password = "",
-               driver = driver.name,
+               driver = opal.driver,
                options = options)
 # Charite
 builder$append(server = project.name,
                url = "",
                user = user.name,
                password = "",
-               driver = driver.name,
+               driver = opal.driver,
                options = options)
 # ...
