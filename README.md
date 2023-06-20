@@ -35,7 +35,7 @@ There are two different user credentials (user account + password) necessary. Fi
 
 This administrative user should have enough permissions to execute the different tasks. The permissions this user need differ from task to task. The installation of required packages necessitates administrator access, whereas the data import is limited to permissions allowing to create new projects and having read/write access to it. 
 
-The user credentials and the corresponding permissions for the analysis should be different from the administrative user. User name and password is provided to the external scientist to access the locally managed data within OPAL - only the project the data has been imported to. Similar to user name and password, the permissions of this analysis user are also different.  
+The user credentials and the corresponding permissions for the analysis should be different from the administrative user. User name and password is provided to the external scientist to access the locally managed data within OPAL - only the project the data has been imported to. Similar to user name and password, the [permissions of this analysis user](https://opaldoc.obiba.org/en/dev/cookbook/r-datashield/authz.html#apply-datashield-permissions) are also different (view dictionary and summary, without access to individual values).  
 
 Please specify these parameters either in the [.Rprofile](./.RProfile) file 
 
