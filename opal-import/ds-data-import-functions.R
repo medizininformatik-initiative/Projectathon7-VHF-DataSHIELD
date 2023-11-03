@@ -10,6 +10,66 @@ generate.and.join.pid <- function(data.cohort, x) {
   return(x)
 }
 
+#------------------------------------------------------------------------------------------------------------------------
+# # # transform nt_pro_bnp_values to uniform unit pg/mL (regarding the given unit)
+unifyUnits <- function(cohort){
+  
+  # Some DIZ write the SI unit not in the "valueQuantity/code" which was imported
+  # in the field "NTproBNP.unit" but in the "valueQuantity/unit" which was
+  # imported in the "NTproBNP.unitLabel". This label should only be used in FHIR
+  # as a human readable unit description. So we fix this error here.
+
+  if (all(is.na(cohort$NTproBNP.unit))) { # all unit values are NA -> copy the full unitLabel column to unit
+    cohort <- cohort %>% mutate(NTproBNP.unit = NTproBNP.unitLabel)
+  } else { # some unit values are NA -> replace the NA values in unit by unitLabel
+    cohort <- cohort %>% mutate(NTproBNP.unit = ifelse(is.na(NTproBNP.unit), NTproBNP.unitLabel, NTproBNP.unit))
+  }
+  # remove all rows where the NTproBNP.unit is still NA
+  cohort <- cohort[!is.na(cohort$NTproBNP.unit), ]
+  
+  # All valid NTproBNP units taken from http://www.unitslab.com/node/163
+  # All units are checked case insensitive, so for example the correct
+  # UCUM unit "pg/mL" includes the invalid unit "pg/ml".
+  # The first value describes the code and the number value the conversion
+  # factor regarding the reference value in the first line of the table.
+  # If necessary then append other (invalid) units at the end of the list.
+  units <- c(
+    "pg/mL", 1, # Reference Unit as first value. Must always have a conversion value 1.
+    "ng/L", 1,
+    "pg/dL", 100,
+    "pg/100mL", 100,
+    "pg%", 100,
+    "pg/L", 1000,
+    "pmol/L", 0.1182
+  )
+  # extract unit strings and conversion factors from the table list
+  units <- matrix(units, length(units) / 2, 2, byrow = TRUE)
+  unitNames <- units[, 1]
+  unitFactors <- as.numeric(units[, 2])
+  
+  # remove data rows with invalid units
+  unitsPattern <- paste(unitNames, collapse = "|")
+  cohort <- cohort[grepl(unitsPattern, cohort$NTproBNP.unit, ignore.case = TRUE), ]
+  
+  # now really unify
+  for (i in 2 : length(unitNames)) {
+    # Convert value
+    cohort <- cohort %>%
+      mutate(NTproBNP.valueQuantity.value = ifelse(tolower(NTproBNP.unit) == tolower(unitNames[i]), as.numeric(NTproBNP.valueQuantity.value)*unitFactors[i], NTproBNP.valueQuantity.value))
+    # Convert unit
+    cohort <- cohort %>%
+      mutate(NTproBNP.unit = ifelse(tolower(NTproBNP.unit) == tolower(unitNames[i]), unitNames[1], NTproBNP.unit))
+  }
+  
+  # overwrite the unit label with the unified one
+  cohort <- cohort %>% mutate(NTproBNP.unitLabel = "picogram per milliliter")
+  
+  return(cohort)
+}
+
+data.cohort<-unifyUnits(data.cohort)
+#------------------------------------------------------------------------------------------------------------------------
+
 transform.patient <- function(data.cohort) {
   data.patient <- unique(data.cohort[,c(1, 12, 15)])
   data.patient <- data.patient[order(data.patient$subject),]
