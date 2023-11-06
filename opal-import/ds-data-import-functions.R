@@ -69,6 +69,51 @@ unifyUnits <- function(cohort){
 
 data.cohort<-unifyUnits(data.cohort)
 #------------------------------------------------------------------------------------------------------------------------
+# Extract some information and recode given diagnosis  
+CreateAnalysisTable <- function(cohort, conditions) {
+  result <- cohort %>%
+    group_by(encounter.id) %>%
+    summarize(
+      subject = first(subject),
+      NTproBNP.valueQuantity.value = max(NTproBNP.valueQuantity.value, na.rm = TRUE),
+      NTproBNP.unit = first(NTproBNP.unit),
+      NTproBNP.valueQuantity.comparator=NTproBNP.valueQuantity.comparator,
+      gender = first(gender),
+      age= first(age),
+      encounter.start=encounter.start,
+      encounter.end=encounter.end
+    ) %>%
+    unique()
+  
+  conditionsReduced <- conditions %>%
+    group_by(encounter.id) %>%
+    summarize(
+                                                        # check possible conditions again
+      IdiopathicHypotension =as.numeric(any(grepl("I95.0", code))),
+      AtrialFibrillation = as.numeric(any(grepl("I48.0|I48.1|I48.2|I48.9", code))),
+      MyocardialInfarction = as.numeric(any(grepl("I21|I22|I25.2", code))),
+      HeartFailure = as.numeric(any(grepl("I50", code))),
+      Stroke = as.numeric(any(grepl("I60|I61|I62|I63|I64|I69", code)))
+    )
+  
+  result <- result %>%
+    left_join(conditionsReduced, by = "encounter.id")
+  
+  result <- result %>%
+    mutate(
+      IdiopathicHypotension =ifelse(is.na(IdiopathicHypotension), 0, IdiopathicHypotension),
+      AtrialFibrillation = ifelse(is.na(AtrialFibrillation), 0, AtrialFibrillation),
+      MyocardialInfarction = ifelse(is.na(MyocardialInfarction), 0, MyocardialInfarction),
+      HeartFailure = ifelse(is.na(HeartFailure), 0, HeartFailure),
+      Stroke = ifelse(is.na(Stroke), 0, Stroke)
+    )
+  
+  return(result)
+}
+
+data.analysis<-CreateAnalysisTable(data.cohort, data.diagnosis)  
+# --------------------------------------------------------------------------------
+
 
 transform.patient <- function(data.cohort) {
   data.patient <- unique(data.cohort[,c(1, 12, 15)])
@@ -85,6 +130,35 @@ transform.patient <- function(data.cohort) {
 
   colnames(data.patient) <- c("patient_id", "gender", "age", "id", "pid")
   return(data.patient)
+}
+
+transform.analysis <- function(data.analysis) {
+ 
+  # Generate an independent and surrogate id column
+  data.analysis$id <- 1:nrow(data.analysis)
+  data.analysis$pid <- data.analysis$id
+  
+  # Transform the data type
+  data.analysis$encounter.id <- as.character(data.analysis$encounter.id)
+  data.analysis$subject <- as.character(data.analysis$subject)
+  data.analysis$NTproBNP.valueQuantity.value <- as.numeric(data.analysis$NTproBNP.valueQuantity.value)
+  data.analysis$NTproBNP.unit <- as.character(data.analysis$NTproBNP.unit)
+  data.analysis$NTproBNP.valueQuantity.comparator <- as.character(data.analysis$NTproBNP.valueQuantity.comparator)
+  data.analysis$gender <- as.character(data.analysis$gender)
+  data.analysis$age <- as.numeric(data.analysis$age)
+  data.analysis$encounter.start <- as.Date(data.analysis$encounter.start, format = "%Y-%m-%d")
+  data.analysis$encounter.end <- as.Date(data.analysis$encounter.end, format = "%Y-%m-%d")
+  # remove conditions that are not needed
+  data.analysis$IdiopathicHypotension<-as.numeric(data.analysis$IdiopathicHypotension)
+  data.analysis$AtrialFibrillation<-as.numeric(data.analysis$AtrialFibrillation)
+  data.analysis$MyocardialInfarction<-as.numeric(data.analysis$MyocardialInfarction)
+  data.analysis$HeartFailure<-as.numeric(data.analysis$HeartFailure)
+  data.analysis$Stroke<-as.numeric(data.analysis$Stroke)
+  
+  colnames(data.analysis) <- c("encounter_id","patient_id","nt_pro_bnp_value","nt_pro_bnp_unit","nt_pro_bnp_comparator",
+                               "gender", "age", "encounter_start","encounter_end","IdiopathicHypotension",
+                               "AtrialFibrillation","MyocardialInfarction","HeartFailure","Stroke","id","pid")
+  return(data.analysis)
 }
 
 transform.observation <- function(data.cohort) {
@@ -231,4 +305,40 @@ import.diagnosis <- function(connection, project.name, data.diagnosis) {
                   project = project.name,
                   table = table.name.diagnosis, id.name = "id", type = "Condition",
                   tibble = dict.diagnosis, force = T)
+}
+######################
+# Define the metadata of the expected data structure for data object "analysis_nt_pro_bnp"
+# and save the data into the OPAL server
+import.analysis <- function(connection, project.name, data.analysis) {
+  table.name.analysis <- "analysis_nt_pro_bnp"
+
+  features.analysis <- tibble::tribble(
+    ~name, ~valueType, ~`label:en`, ~`Namespace::Name`, ~unit, ~repeatable, ~index,
+    "id", "integer", "id", NA, NA, 0, 15,
+    "encounter_id", "character", "encounter.id", NA, NA, 0, 1,
+    "patient_id", "character", "patient.identifier", NA, NA, 0, 2,
+    "nt_pro_bnp_value", "float", "ntprobnp.value", NA, NA, 0, 3,
+    "nt_pro_bnp_unit", "character", "ntprobnp.unit", NA, NA, 0, 4,
+    "nt_pro_bnp_comparator", "character", "ntprobnp.comparator", NA, NA, 0, 5,
+    "gender", "character", "gender", NA, NA, 0, 6,
+    "age", "integer", "age", NA, NA, 0, 7,
+    "encounter_start", "date", "encounter.start", NA, NA, 0, 8,
+    "encounter_end", "date", "encounter.end", NA, NA, 0, 9,
+    "IdiopathicHypotension","integer","IdiopathicHypotension", NA, NA, 0 ,10,
+    "AtrialFibrillation","integer","AtrialFibrillation", NA, NA, 0 ,11,
+    "MyocardialInfarction","integer","MyocardialInfarction", NA, NA, 0 ,12,
+    "HeartFailure","integer","HeartFailure", NA, NA, 0 ,13,
+    "Stroke","integer","Stroke", NA, NA, 0 ,14,
+    "pid", "integer", "pid", NA, NA, 0, 16
+  )
+  
+  
+  # Assuming 'data.unit' now contains a synthetic 'id' column
+  dict.analysis <- dictionary.apply(tibble = tibble::as_tibble(data.analysis), variables = features.analysis)
+  
+  opal.table_save(opal = connection,
+                  project = project.name,
+                  table = table.name.analysis, id.name = "id", type = "Extension",
+                  tibble = dict.analysis, force = TRUE
+  )
 }
