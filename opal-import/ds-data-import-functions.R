@@ -136,7 +136,6 @@ transform.analysis <- function(data.analysis) {
  
   # Generate an independent and surrogate id column
   data.analysis$id <- 1:nrow(data.analysis)
-  data.analysis$pid <- data.analysis$id
   
   # Transform the data type
   data.analysis$encounter.id <- as.character(data.analysis$encounter.id)
@@ -148,12 +147,14 @@ transform.analysis <- function(data.analysis) {
   data.analysis$age <- as.numeric(data.analysis$age)
   data.analysis$encounter.start <- as.Date(data.analysis$encounter.start, format = "%Y-%m-%d")
   data.analysis$encounter.end <- as.Date(data.analysis$encounter.end, format = "%Y-%m-%d")
-  # remove conditions that are not needed
+  # TO DO: remove conditions that are not needed
   data.analysis$IdiopathicHypotension<-as.numeric(data.analysis$IdiopathicHypotension)
   data.analysis$AtrialFibrillation<-as.numeric(data.analysis$AtrialFibrillation)
   data.analysis$MyocardialInfarction<-as.numeric(data.analysis$MyocardialInfarction)
   data.analysis$HeartFailure<-as.numeric(data.analysis$HeartFailure)
   data.analysis$Stroke<-as.numeric(data.analysis$Stroke)
+   # Generate the patient identifier as work around for joining using subject with long strings (disclosure risk)
+  data.analysis <- generate.and.join.pid(data.cohort, data.analysis)
   
   colnames(data.analysis) <- c("encounter_id","patient_id","nt_pro_bnp_value","nt_pro_bnp_unit","nt_pro_bnp_comparator",
                                "gender", "age", "encounter_start","encounter_end","IdiopathicHypotension",
