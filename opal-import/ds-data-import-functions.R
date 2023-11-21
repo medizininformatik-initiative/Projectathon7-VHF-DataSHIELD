@@ -112,6 +112,13 @@ CreateAnalysisTable <- function(cohort, conditions) {
 }
 
 data.analysis<-CreateAnalysisTable(data.cohort, data.diagnosis)  
+
+# add 0 and 1 for male and female, otherwise ds.dataFrameSubset causes problems while analysis
+CodingGender<-function(data.analysis){
+  data.analysis$gender[data.analysis$gender=="male"]<-0
+  data.analysis$gender[data.analysis$gender=="female"]<-1
+  return(data.analysis)
+}
 # --------------------------------------------------------------------------------
 
 
