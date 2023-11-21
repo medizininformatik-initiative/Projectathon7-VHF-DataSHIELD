@@ -47,7 +47,10 @@ source("ds-data-import-functions.R")
 
 data.patient <- transform.patient(data.cohort)
 data.observation <- transform.observation(data.cohort)
+data.analysis<- CreateAnalysisTable(data.cohort, data.diagnosis) 
 data.diagnosis <- transform.diagnosis(data.cohort, data.diagnosis)
+data.analysis<-transform.analysis(data.analysis)
+
 rm(data.cohort)
 
 
@@ -90,6 +93,7 @@ if (opal.project_exists(opal = connection, project = project.name)) {
 import.patient(connection = connection, project.name = project.name, data.patient = data.patient)
 import.observation(connection = connection, project.name = project.name, data.observation = data.observation)
 import.diagnosis(connection = connection, project.name = project.name, data.diagnosis = data.diagnosis)
+import.analysis(connection = connection, project.name = project.name, data.analysis = data.analysis)
 
 # Logout from the OPAL server
 opal.logout(connection)
