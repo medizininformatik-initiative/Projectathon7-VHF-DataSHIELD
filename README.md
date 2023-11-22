@@ -37,7 +37,8 @@ This administrative user should have enough permissions to execute the different
 
 The user credentials and the corresponding permissions for the analysis should be different from the administrative user. User name and password is provided to the external scientist to access the locally managed data within OPAL - only the project the data has been imported to. Similar to user name and password, the [permissions of this analysis user](https://opaldoc.obiba.org/en/dev/cookbook/r-datashield/authz.html#apply-datashield-permissions) are also different (view dictionary and summary, without access to individual values).  
 
-Please specify these parameters either in the [.Rprofile](./.RProfile) file 
+#### Configuration of administrator user for usage in the scripts
+Please specify these parameters either in the [.Rprofile](./.RProfile) file to make use of the administration user (i.e. administrator) in the scripts
 
 ````[R]
 Sys.setenv(OPAL_USER_NAME = "administrator")
@@ -60,6 +61,8 @@ user.name <- "administrator"
 pass.word <- "top%secret&password"
 opal.server.url <- "https://foo-bar.de"
 ````
+
+
 
 ### How to execute an R script
 There are different ways to execute R scripts.
@@ -119,6 +122,10 @@ The data import script does the following:
 **TO DO**: Please configure the access to the OPAL server with URL and credentials (user name and password).
 
 **START**: To start the data import, execute the R script [ds-data-import.R](./opal-import/ds-data-import.R) in the directory opal-import. 
+
+### 2.3 Creation of the analysis user
+To create the analysis user please follow the following steps described in this [manual](./documentation/user-creation.pdf).
+
 
 ## 3) Data analysis
 The data analysis is executed by the scientist who has requested the data. Normally, this person or person group is externally and, thus, not part of the own institution. The analysis script for the VHF use case can be found in the folder [data-analysis](./data-analysis). Don't run the scripts available there by yourself, please.
