@@ -10,6 +10,15 @@ generate.and.join.pid <- function(data.cohort, x) {
   return(x)
 }
 
+# # # set NA/NULL values in NTproBNP.valueQuantity.value to "0" 
+# otherwise it causes problems when uploading, 0 will be removed in analysis
+ReplaceNA<-function(data.cohort){
+  data.cohort$NTproBNP.valueQuantity.value[is.na(data.cohort$NTproBNP.valueQuantity.value)]<-0
+  data.cohort$NTproBNP.valueQuantity.value[is.null(data.cohort$NTproBNP.valueQuantity.value)]<-0
+  return(data.cohort)
+}
+data.cohort<-ReplaceNA(data.cohort)
+
 #------------------------------------------------------------------------------------------------------------------------
 # # # transform nt_pro_bnp_values to uniform unit pg/mL (regarding the given unit)
 unifyUnits <- function(cohort){
