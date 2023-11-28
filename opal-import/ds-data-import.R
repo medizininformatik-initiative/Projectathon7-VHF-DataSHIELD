@@ -45,6 +45,7 @@ if (ncol(data.diagnosis) != 11) {
 # PRE-PROCESSING
 source("ds-data-import-functions.R")
 
+data.cohort <- ReplaceNA(data.cohort)
 data.patient <- transform.patient(data.cohort)
 data.observation <- transform.observation(data.cohort)
 data.analysis<- CreateAnalysisTable(data.cohort, data.diagnosis) 
