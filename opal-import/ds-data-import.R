@@ -25,8 +25,11 @@
 # Read the two data files
 #file.name.loc.cohort <- "location/Cohort.csv"
 #file.name.loc.diagnosis <- "location/Diagnosis.csv"
-file.name.loc.cohort <- !is.na(Sys.getenv("FILE_NAME_LOC_COHORT", NA))
-file.name.loc.diagnosis <- !is.na(Sys.getenv("FILE_NAME_LOC_DIAGNOSIS", NA))
+file.name.loc.cohort <- Sys.getenv("FILE_NAME_LOC_COHORT", NA)
+file.name.loc.diagnosis <- Sys.getenv("FILE_NAME_LOC_DIAGNOSIS", NA)
+
+source("./utilities/support-functions.R")
+check.file.names(file.name.loc.cohort, file.name.loc.diagnosis)
 
 data.cohort <- read.csv2(file = file.name.loc.cohort, header = T, sep = ";")
 if (ncol(data.cohort) != 15) {
@@ -65,9 +68,11 @@ require(opalr)
 # Connect to the OPAL server
 # You need a user account with permissions to create a project and add data
 # Don't use self signed certificates (for the OPAL server) - it doesn't work properly
-user.name <- !is.na(Sys.getenv("OPAL_USER_NAME", NA))
-pass.word <- !is.na(Sys.getenv("OPAL_USER_PASSWORD", NA))
-opal.server.url <- !is.na(Sys.getenv("OPAL_SERVER_URL", NA))
+user.name <- Sys.getenv("OPAL_USER_NAME", NA)
+pass.word <- Sys.getenv("OPAL_USER_PASSWORD", NA)
+opal.server.url <- Sys.getenv("OPAL_SERVER_URL", NA)
+
+check.credentials(user.name, pass.word, opal.server.url)
 
 connection <- opal.login(username = user.name,
                          password = pass.word,

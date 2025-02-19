@@ -15,9 +15,12 @@ require(opalr)
 # Connect to the OPAL server
 # You need a user account with permissions to create a project and add data
 # Don't use self signed certificates (for the OPAL server) - it doesn't work properly
-user.name <- !is.na(Sys.getenv("OPAL_USER_NAME", NA))
-pass.word <- !is.na(Sys.getenv("OPAL_USER_PASSWORD", NA))
-opal.server.url <- !is.na(Sys.getenv("OPAL_SERVER_URL", NA))
+user.name <- Sys.getenv("OPAL_USER_NAME", NA)
+pass.word <- Sys.getenv("OPAL_USER_PASSWORD", NA)
+opal.server.url <- Sys.getenv("OPAL_SERVER_URL", NA)
+
+source("./utilities/support-functions.R")
+check.credentials(user.name, pass.word, opal.server.url)
 
 # Login to the OPAL server
 connection <- opal.login(username = user.name,
