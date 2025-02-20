@@ -56,16 +56,17 @@ There are different ways to install DataSHIELD components. First, you can manual
 Second, there are RPM package available. Third and the best choice is (my view) to use Docker Images. Each component is represented by 
 a single image for which a container is then created. The simplest way to stick and run them together, is to use [Docker-Compose](https://docs.docker.com/compose/install/). 
 
-At the Leipzig University, we have used the following bash script to set up all components. Install the Docker framework first. 
-Then create the following script named by "data-shield-compose.yml".
+At the Leipzig University, we have used Docker to install, configure, and thus make the required components available. The Docker images are described with Docker compose files to manage the environments and interactions across different Docker containers. Moreover, we used two Docker compose scripts. The first is to setup the whole DataSHIELD infrastructure, whereas the second is for configuring a reverse proxy. Since the reverse proxy can be used and configured for different services at once. In this way, you need to install the Docker framework first, before you can make the DataSHIELD components available. 
+
+The following script establishes the components to run DataSHIELD. All services communicate for security reasons in an internal (Docker) network. 
+
+We created a directory called "opal", which contains one file named with "compose.yml" with the following content. Please make sure you change the password adequately.
 ```bash
-version: '3'
 services:
   opal:
     image: obiba/opal:latest
-    ports:
-      - "8843:8443"
-      - "8880:8080"
+    networks:
+      - ds-net
     links:
       - rock
       - mongo
@@ -83,8 +84,12 @@ services:
       - /tmp/opal:/srv
   mongo:
     image: mongo:4.2
+    networks:
+      - ds-net
   mysqldata:
     image: mysql:5
+    networks:
+      - ds-net
     environment:
       - MYSQL_DATABASE=opal
       - MYSQL_ROOT_PASSWORD=password
@@ -92,6 +97,56 @@ services:
       - MYSQL_PASSWORD=password
   rock:
     image: datashield/rock-base:6.2-R4.2
+    networks:
+      - ds-net
+
+networks:
+  ds-net:
+    external: false
+    name: ds-net
 ```
+
+The use of a reverse proxy is required since DataSHIELD doesn't allow to unsecurely connect any client using the API, i.e., over http instead https. We use Caddy as reverse proxy. Of course, there are different products available and you can use one of your choice.
+Caddy requires a config file called "Caddyfile". We manage this file in a separate directory, e.g., called "caddy".
+This file has the following content.
+``` bash
+localhost {
+    reverse_proxy opal:8080
+}
+```
+Instead of "localhost" you can use a specific domain (DNS entry). Then, we created a Docker compose file in the same directory called again "compose.yml".
+``` bash
+services:
+  
+  caddy:
+    image: caddy:2.7.5
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - default
+      - ds-net
+
+volumes:
+  caddy-data:
+
+networks:
+  ds-net:
+    external: true
+```
+
+Finally, you can start the services.
+``` bash
+cd opal
+docker compose up compose.yml
+
+cd ../caddy
+docker compose up compose.yml
+```
+
+Note, this configuration does not contain any certificates. 
 
 You can follow the official [installation guide](https://opaldoc.obiba.org/en/latest/admin/installation.html#docker-image-installation) and set login and password for administrator role accordingly. 
