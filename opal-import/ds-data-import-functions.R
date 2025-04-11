@@ -130,7 +130,6 @@ CodingGender<-function(data.analysis){
 }
 # --------------------------------------------------------------------------------
 
-
 transform.patient <- function(data.cohort) {
   data.patient <- unique(data.cohort[,c(1, 12, 15)])
   data.patient <- data.patient[order(data.patient$subject),]
@@ -141,7 +140,10 @@ transform.patient <- function(data.cohort) {
 
   # Transform the data type
   data.patient$subject <- as.character(data.patient$subject)
-  data.patient$gender <- as.character(data.patient$gender)
+  data.patient$gender[tolower(data.patient$gender) == 'male'] <- 0
+  data.patient$gender[tolower(data.patient$gender) == 'female'] <- 1
+  data.patient$gender[data.patient$gender != '0' & data.patient$gender != '1'] <- 2
+  data.patient$gender <- as.integer(data.patient$gender)
   data.patient$age <- as.numeric(data.patient$age)
 
   colnames(data.patient) <- c("patient_id", "gender", "age", "id", "pid")
@@ -159,7 +161,10 @@ transform.analysis <- function(data.analysis) {
   data.analysis$NTproBNP.valueQuantity.value <- as.numeric(data.analysis$NTproBNP.valueQuantity.value)
   data.analysis$NTproBNP.unit <- as.character(data.analysis$NTproBNP.unit)
   data.analysis$NTproBNP.valueQuantity.comparator <- as.character(data.analysis$NTproBNP.valueQuantity.comparator)
-  data.analysis$gender <- as.character(data.analysis$gender)
+  data.analysis$gender[tolower(data.analysis$gender) == 'male'] <- 0
+  data.analysis$gender[tolower(data.analysis$gender) == 'female'] <- 1
+  data.analysis$gender[data.analysis$gender != '0' & data.analysis$gender != '1'] <- 2
+  data.analysis$gender <- as.integer(data.analysis$gender)
   data.analysis$age <- as.numeric(data.analysis$age)
   data.analysis$encounter.start <- as.Date(data.analysis$encounter.start, format = "%Y-%m-%d")
   data.analysis$encounter.end <- as.Date(data.analysis$encounter.end, format = "%Y-%m-%d")
@@ -245,7 +250,7 @@ import.patient <- function (connection, project.name, data.patient) {
   features.patient <- tibble::tribble(
     ~name, ~valueType, ~`label:en`, ~`Namespace::Name`, ~unit, ~repeatable, ~index,
     "patient_id", "character", "patient.identifier", NA, NA, 0, 1,
-    "gender", "character", "gender", NA, NA, 0, 2,
+    "gender", "integer", "gender", NA, NA, 0, 2,
     "age", "integer", "age", NA, NA, 0, 3,
     "id", "integer", "id", NA, NA, 0, 4,
     "pid", "integer", "pid", NA, NA, 0, 5
@@ -337,7 +342,7 @@ import.analysis <- function(connection, project.name, data.analysis) {
     "nt_pro_bnp_value", "float", "ntprobnp.value", NA, NA, 0, 3,
     "nt_pro_bnp_unit", "character", "ntprobnp.unit", NA, NA, 0, 4,
     "nt_pro_bnp_comparator", "character", "ntprobnp.comparator", NA, NA, 0, 5,
-    "gender", "character", "gender", NA, NA, 0, 6,
+    "gender", "integer", "gender", NA, NA, 0, 6,
     "age", "integer", "age", NA, NA, 0, 7,
     "encounter_start", "date", "encounter.start", NA, NA, 0, 8,
     "encounter_end", "date", "encounter.end", NA, NA, 0, 9,
@@ -358,4 +363,119 @@ import.analysis <- function(connection, project.name, data.analysis) {
                   table = table.name.analysis, id.name = "id", type = "Extension",
                   tibble = dict.analysis, force = TRUE
   )
+}
+
+# Creates the connection object usingthe administrator credentials
+# All credential details will be set in .RProfile file
+# which should be executed before running the import script to set the environment
+create.opal.connection <- function() {
+  # Connect to the OPAL server
+  # You need a user account with permissions to create a project and add data
+  # Don't use self signed certificates (for the OPAL server) - it doesn't work properly
+  user.name <- Sys.getenv("OPAL_USER_NAME", NA)
+  pass.word <- Sys.getenv("OPAL_USER_PASSWORD", NA)
+  opal.server.url <- Sys.getenv("OPAL_SERVER_URL", NA)
+
+  check.credentials(user.name, pass.word, opal.server.url)
+
+  connection <- opal.login(username = user.name,
+                             password = pass.word,
+                             url = opal.server.url, opts=list(ssl_verifyhost=0,ssl_verifypeer=0))
+
+  return (connection)
+}
+
+create.project <- function(connection, project.name) {
+  # Create a project using the specified name before
+  if (opal.project_exists(opal = connection, project = project.name)) {
+      stop(paste("The project \"", project.name, "\" already exists. Unclear status of the project content.\n",
+                   "Please clean and remove or rename the existing project first and then try again.\n",
+                   "Please, use the R script ds-remove-project.R to remove all data and the project definitions\n",
+                   "from the OPAL server. Alternatively, you can clean up the environement using the OPAL user interface."))
+    } else {
+      opal.project_create(opal = connection,
+                            project = project.name,
+                            database = T,
+                            description = "Project VHF of the 7th MII Projectathon",
+                            tags = c("MII", "7th Projectathon", "VHF DataSHIELD"))
+    }
+}
+
+batch.upload.to.opal <- function(connection, project.name, data.patient, data.observation,  data.diagnosis, data.analysis) {
+  # Import data into three tables, i.e., patient, observation, and diagnosis
+  import.patient(connection = connection, project.name = project.name, data.patient = data.patient)
+  import.observation(connection = connection, project.name = project.name, data.observation = data.observation)
+  import.diagnosis(connection = connection, project.name = project.name, data.diagnosis = data.diagnosis)
+  import.analysis(connection = connection, project.name = project.name, data.analysis = data.analysis)
+}
+
+# The source code of the following functions uploading data in chunks has been provided by Raphael Verbuecheln
+# and Stefanie Biergans from UK Tuebingen. Thanks to both, large data collection can be uploaded.
+# The functions are organized per table which are summarized by chunk.upload.to.opal.
+# If you encounter problems in terms of time-outs etc. please modify the chunk size in this function.
+chunk.upload.patient <- function(connection, project.name, data.patient, chunk.size) {
+  # Patient Upload in chunks
+  length.df <- nrow(data.patient)
+  for (i in 1 : floor(length.df / chunk.size) ) {
+    current.part <- data.patient[((i - 1) * chunk.size + 1) : (i * chunk.size),]
+    import.patient(connection = connection, project.name = project.name, data.observation = current.part)
+  }
+  # Last Chunk
+  current.part <- data.patoent[(floor(length.df / chunk.size) * chunk.size + 1) : length.df,]
+  import.patient(connection = connection, project.name = project.name, data.observation = current.part)
+}
+
+chunk.upload.observation <- function(connection, project.name, data.observation, chunk.size) {
+  # Observation Upload in chunks
+  for (i in 1 : floor(length.df / chunk.size) ) {
+    current.part <- data.observation[((i - 1) * chunk.size + 1) : (i * chunk.size),]
+    import.observation(connection = connection, project.name = project.name, data.observation = current.part)
+  }
+  # Last Chunk
+  current.part <- data.observation[(floor(length.df / chunk.size) * chunk.size + 1) : length.df,]
+  import.observation(connection = connection, project.name = project.name, data.observation = current.part)
+}
+
+chunk.upload.diagnosis <- function(connection, project.name, data.diagnosis, chunk.size) {
+  # Diagnosis Upload in Chunks
+  length.df <- nrow(data.diagnosis)
+  for (i in 1: floor(length.df / chunk.size)) {
+    current.part <- data.diagnosis[((i - 1) * chunk.size + 1) : (i * chunk.size),]
+    import.diagnosis(connection = connection, project.name = project.name, data.diagnosis = current.part)
+  }
+  current.part <- data.diagnosis[(floor(length.df / chunk.size) * chunk.size + 1) : length.df,]
+  import.diagnosis(connection = connection, project.name = project.name, data.diagnosis = current.part)
+}
+
+chunk.upload.analysis <- function(connection, project.name, data.analysis, chunk.size) {
+  # Analysis Upload in Chunks
+  length.df <- nrow(data.analysis)
+  for (i in 1: floor(length.df / chunk.size)){
+    current.part <- data.analysis[((i - 1) * chunk.size + 1) : (i * chunk.size),]
+    import.analysis(connection = connection, project.name = project.name, data.analysis = current.part)
+  }
+  current.part <- data.analysis[(floor(length.df / chunk.size) * chunk.size + 1) : length.df,]
+  import.analysis(connection = connection, project.name = project.name, data.analysis = current.part)
+}
+
+# This function summarizes the data import in chunks using table-specific functions
+chunk.upload.to.opal <- function(connection, project.name, data.patient, data.observation,  data.diagnosis, data.analysis) {
+  chunk.size <- 10000
+  chunk.upload.patient(connection, project.name, data.patient, chunk.size)
+  chunk.upload.observation(connection, project.name, data.observation, chunk.size)
+  chunk.upload.diagnosis(connection, project.name, data.diagnosis, chunk.size)
+  chunk.upload.analysis(connection, project.name, data.analysis, chunk.size)
+}
+
+# Logout from the OPAL server
+close.opal.connection <- function(connection) {
+  opal.logout(connection)
+}
+
+# The function saves the data partitions (tables) into data files. File names are prespecified.
+write.data.to.files <- function(data.patient, data.observation,  data.diagnosis, data.analysis) {
+  write.csv2(data.patient, file = "./data-patient.csv")
+  write.csv2(data.observation, file = "./data-observation.csv")
+  write.csv2(data.diagnosis, file = "./data-diagnosis.csv")
+  write.csv2(data.analysis, file = "./data-analysis.csv")
 }

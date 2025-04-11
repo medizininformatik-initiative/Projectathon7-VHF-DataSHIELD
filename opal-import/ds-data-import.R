@@ -52,59 +52,50 @@ source("ds-data-import-functions.R")
 data.cohort <- ReplaceNA(data.cohort)
 data.patient <- transform.patient(data.cohort)
 data.observation <- transform.observation(data.cohort)
-data.analysis<- CreateAnalysisTable(data.cohort, data.diagnosis) 
+data.analysis <- CreateAnalysisTable(data.cohort, data.diagnosis)
 data.diagnosis <- transform.diagnosis(data.cohort, data.diagnosis)
-data.analysis<-transform.analysis(data.analysis)
-data.analysis<-CodingGender(data.analysis)   # male --> 0 ; female --> 1
+data.analysis <- transform.analysis(data.analysis)
+data.analysis <- CodingGender(data.analysis)   # male --> 0 ; female --> 1
 
 rm(data.cohort)
 
-
-# Load opal-for-r library
-# You need to install this library first before you can use it.
-require(opalr)
-
-
-# Connect to the OPAL server
-# You need a user account with permissions to create a project and add data
-# Don't use self signed certificates (for the OPAL server) - it doesn't work properly
-user.name <- Sys.getenv("OPAL_USER_NAME", NA)
-pass.word <- Sys.getenv("OPAL_USER_PASSWORD", NA)
-opal.server.url <- Sys.getenv("OPAL_SERVER_URL", NA)
-
-check.credentials(user.name, pass.word, opal.server.url)
-
-connection <- opal.login(username = user.name,
-                         password = pass.word,
-                         url = opal.server.url, opts=list(ssl_verifyhost=0,ssl_verifypeer=0))
 
 # The project name is internally used in OPAL as unique identifier for the project
 # Therefore, we should be sure it is not used for any other project
 # This should not be changed since the project needs to be named in the same way at all partner sites !!!
 project.name <- "VHF"
 
-# Create a project using the specified name before
-if (opal.project_exists(opal = connection, project = project.name)) {
-  stop(paste("The project \"", project.name, "\" already exists. Unclear status of the project content.\n",
-             "Please clean and remove or rename the existing project first and then try again.\n",
-             "Please, use the R script ds-remove-project.R to remove all data and the project definitions\n",
-             "from the OPAL server. Alternatively, you can clean up the environement using the OPAL user interface."))
+# Use the specified import type (see .RProfile)
+import.type <- Sys.getenv(IMPORT_TYPE, NA)
+
+if (input.type == Sys.getenv(BATCH_UPLOAD_TO_OPAL)) {
+  # Load opal-for-r library
+  # You need to install this library first before you can use it.
+  require(opalr)
+  # resolve credentials to OPAL system, create connection and project as well as upload data finally
+  connection <- create.opal.connection()
+  create.project(connection, project.name)
+  batch.upload.to.opal(connection, project.name, data.patient, data.observation, data.diagnosis, data.analysis)
+  close.opal.connection(connection)
+
+} else if (input.type == Sys.getenv(CHUNK_UPLOAD_TO_OPAL)) {
+  # Load opal-for-r library
+  # You need to install this library first before you can use it.
+  require(opalr)
+  connection <- create.opal.connection()
+  create.project(connection)
+  chunk.upload.to.opal(connection, project.name, data.patient, data.observation, data.diagnosis, data.analysis)
+  close.opal.connection(connection)
+
+} else if (input.type == Sys.getenv(WRITE_TO_FILE)) {
+  # write the normalized data partitions to files
+  write.data.to.files(data.patient, data.observation, data.diagnosis, data.analysis)
+
 } else {
-  opal.project_create(opal = connection,
-                      project = project.name,
-                      database = T,
-                      description = "Project VHF of the 7th MII Projectathon",
-                      tags = c("MII", "7th Projectathon", "VHF DataSHIELD"))
+  stop(paste("The specified import type is not one of the pre-defined value set. ",
+             "Please specify one of the available import types in .RProfile and execute it before ",
+             "running the import script or other procedures."))
 }
-
-# Import data into three tables, i.e., patient, observation, and diagnosis
-import.patient(connection = connection, project.name = project.name, data.patient = data.patient)
-import.observation(connection = connection, project.name = project.name, data.observation = data.observation)
-import.diagnosis(connection = connection, project.name = project.name, data.diagnosis = data.diagnosis)
-import.analysis(connection = connection, project.name = project.name, data.analysis = data.analysis)
-
-# Logout from the OPAL server
-opal.logout(connection)
 
 # Clean up
 rm(list = ls())
