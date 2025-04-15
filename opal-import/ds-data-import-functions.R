@@ -123,10 +123,17 @@ CreateAnalysisTable <- function(cohort, conditions) {
 data.analysis<-CreateAnalysisTable(data.cohort, data.diagnosis)  
 
 # add 0 and 1 for male and female, otherwise ds.dataFrameSubset causes problems while analysis
-CodingGender<-function(data.analysis){
-  data.analysis$gender[data.analysis$gender=="male"]<-0
-  data.analysis$gender[data.analysis$gender=="female"]<-1
-  return(data.analysis)
+reCodeGender<-function(df){
+  df$gender[df$gender == "male"] <- 0
+  df$gender[df$gender == "female"] <- 1
+  df$gender[df$gender != '0' & df$gender != '1'] <- 2
+  data.patient$gender <- as.integer(data.patient$gender)
+  return(df)
+}
+
+format.date.in.char <- function(df, col.name) {
+  df[[col.name]] <- format(ymd(df[[col.name]]),"%Y-%m-%d")
+  return (df)
 }
 # --------------------------------------------------------------------------------
 
@@ -140,10 +147,7 @@ transform.patient <- function(data.cohort) {
 
   # Transform the data type
   data.patient$subject <- as.character(data.patient$subject)
-  data.patient$gender[tolower(data.patient$gender) == 'male'] <- 0
-  data.patient$gender[tolower(data.patient$gender) == 'female'] <- 1
-  data.patient$gender[data.patient$gender != '0' & data.patient$gender != '1'] <- 2
-  data.patient$gender <- as.integer(data.patient$gender)
+  data.patient <- reCodeGender(data.patient)
   data.patient$age <- as.numeric(data.patient$age)
 
   colnames(data.patient) <- c("patient_id", "gender", "age", "id", "pid")
@@ -151,7 +155,6 @@ transform.patient <- function(data.cohort) {
 }
 
 transform.analysis <- function(data.analysis) {
- 
   # Generate an independent and surrogate id column
   data.analysis$id <- 1:nrow(data.analysis)
   
@@ -166,8 +169,8 @@ transform.analysis <- function(data.analysis) {
   data.analysis$gender[data.analysis$gender != '0' & data.analysis$gender != '1'] <- 2
   data.analysis$gender <- as.integer(data.analysis$gender)
   data.analysis$age <- as.numeric(data.analysis$age)
-  data.analysis$encounter.start <- as.Date(data.analysis$encounter.start, format = "%Y-%m-%d")
-  data.analysis$encounter.end <- as.Date(data.analysis$encounter.end, format = "%Y-%m-%d")
+  data.analysis$encounter.start <- format.date.in.char(data.analysis$encounter.start)
+  data.analysis$encounter.end <- format.date.in.char(data.analysis$encounter.end)
   # TO DO: remove conditions that are not needed
   data.analysis$IdiopathicHypotension<-as.numeric(data.analysis$IdiopathicHypotension)
   data.analysis$AtrialFibrillation<-as.numeric(data.analysis$AtrialFibrillation)
@@ -190,7 +193,7 @@ transform.observation <- function(data.cohort) {
   data.observation$id <- 1:nrow(data.observation)
   # Transform the data type
   data.observation$subject <- as.character(data.observation$subject)
-# The next feature has been removed from the data set since it has not been applied for
+# The next feature has been removed from the data set since it has not been requested
 # data.observation$NTproBNP.date <- as.Date(data.observation$NTproBNP.date, format = "%Y-%m-%d %H:%M:%S")
   data.observation$encounter.id <- as.character(data.observation$encounter.id)
   data.observation$NTproBNP.valueQuantity.value <- as.numeric(data.observation$NTproBNP.valueQuantity.value)
@@ -201,8 +204,8 @@ transform.observation <- function(data.cohort) {
   data.observation$NTproBNP.unitLabel <- as.character(data.observation$NTproBNP.unitLabel)
   data.observation$NTproBNP.valueCodeableConcept.code <- as.character(data.observation$NTproBNP.valueCodeableConcept.code)
   data.observation$NTproBNP.valueCodeableConcept.system <- as.character(data.observation$NTproBNP.valueCodeableConcept.system)
-  data.observation$encounter.start <- as.Date(data.observation$encounter.start, format = "%Y-%m-%d")
-  data.observation$encounter.end <- as.Date(data.observation$encounter.end, format = "%Y-%m-%d")
+  data.observation$encounter.start <- format.date.in.char(data.observation$encounter.start)
+  data.observation$encounter.end <- format.date.in.char(data.observation$encounter.end)
 
   # Generate the patient identifier as work around for joining using subject with long strings (disclosure risk)
   data.observation <- generate.and.join.pid(data.cohort, data.observation)
