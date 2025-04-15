@@ -47,6 +47,7 @@ if (ncol(data.diagnosis) != 11) {
 
 # PRE-PROCESSING
 require(dplyr)
+require(lubridate)
 source("ds-data-import-functions.R")
 
 data.cohort <- ReplaceNA(data.cohort)
