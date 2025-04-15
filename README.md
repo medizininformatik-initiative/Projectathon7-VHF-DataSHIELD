@@ -105,13 +105,18 @@ Please provide these data files in a way you have access to it; you need read pe
 The structure of the exported data is [separately described](./documentation/Structure-of-Import-Data.md). Don't change the file structure of the two generated data files 
 
 ### 2.2 Data import
-DataSHIELD internally manages data in projects. A project is basically a "container" for data, such as a database. The projects should be uniquely named; this is mandatory. Each project consists of tables managing the data in tabular format. Each table needs to be uniquely named within a project.
+DataSHIELD internally manages data in projects. A project is basically a "container" for data, such as a database. The projects should be uniquely named; this is mandatory. Each project consists of tables managing the data in tabular format. Each table needs to be uniquely named within a project. Since we will use the name "VHF" for real data and "vhf-test" for executing tests using the delivered test data, there should be no other project available with these names in your OPAL server. The data import script already checks this before data is imported. 
 
-The project name and the table names for this projectathon are pre-specified. **Please do not change them!** Both, the project name ("VHF") and all table names ("Patient", "Condition", and "Diagnosis") need to be harmonized over all partners participating a joint (distributed) analysis. If you already use the project name "VHF", come back to us by raising an issue.  
+The project name and the table names for this projectathon are pre-specified. **Please do not change them!** Both, the project name ("VHF") and all table names ("Patient", "Condition", and "Diagnosis") need to be harmonized over all partners participating a joint (distributed) analysis.  
 
-The data import script does the following:
+The data import script comes with three modes of operation, i.e., import types. The import types are
+1. **Batch data import**: All data is uploaded at once which is suitable for many use cases. It is the standard import type. 
+2. **Chunked data import**: Data is partitioned into chunks and uploaded partition by partition. This import type is specifically for large data volumes. Apply this in case you encounter problems when uploading data. Internally, the chuck size is set to 10,000; you can adapt it in this [script](./opal-import/ds-data-import-functions.R).
+3. **Manual data import**: If you completely unfamiliar or you want to do the data import over the user interface of the OPAL server. The data importer only prepares data for the import process and saves them into data files, one for each OPAL table of the project. You can then use the generated files to directly upload them over the user interface. Before you should create the tables by using table-specific [dictionaries](./opal-import/dictionaries).     
+
+Usually, the data import script does the following:
 - it loads the data from the two CSV files listed above.
-- transforms the data into three internal tables (called DataFrames)
+- transforms the data into internal tables (called DataFrames)
 - creates the project VHF in your OPAL server
 - creates the three tables Patient, Condition, and Diagnosis
 - saves the data into the three tables
