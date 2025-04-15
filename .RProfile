@@ -37,4 +37,4 @@ Sys.setenv(BATCH_UPLOAD_TO_OPAL = "batch-upload-to-opal")
 Sys.setenv(CHUNK_UPLOAD_TO_OPAL = "chunk-upload-to-opal")
 Sys.setenv(WRITE_TO_FILE = "write-to-file")
 
-Sys.setenv(IMPORT_TYPE = Sys.getenv(UPLOAD_TO_FILE))
+Sys.setenv(IMPORT_TYPE = Sys.getenv("BATCH_UPLOAD_TO_OPAL"))
