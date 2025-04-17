@@ -56,7 +56,6 @@ data.observation <- transform.observation(data.cohort)
 data.analysis <- CreateAnalysisTable(data.cohort, data.diagnosis)
 data.diagnosis <- transform.diagnosis(data.cohort, data.diagnosis)
 data.analysis <- transform.analysis(data.analysis)
-data.analysis <- reCodeGender(data.analysis)   # male --> 0 ; female --> 1
 
 rm(data.cohort)
 
