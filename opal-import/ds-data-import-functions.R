@@ -127,7 +127,7 @@ reCodeGender<-function(df){
   df$gender[df$gender == "male"] <- 0
   df$gender[df$gender == "female"] <- 1
   df$gender[df$gender != '0' & df$gender != '1'] <- 2
-  data.patient$gender <- as.integer(data.patient$gender)
+  df$gender <- as.integer(df$gender)
   return(df)
 }
 
