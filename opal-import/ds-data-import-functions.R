@@ -164,10 +164,7 @@ transform.analysis <- function(data.analysis) {
   data.analysis$NTproBNP.valueQuantity.value <- as.numeric(data.analysis$NTproBNP.valueQuantity.value)
   data.analysis$NTproBNP.unit <- as.character(data.analysis$NTproBNP.unit)
   data.analysis$NTproBNP.valueQuantity.comparator <- as.character(data.analysis$NTproBNP.valueQuantity.comparator)
-  data.analysis$gender[tolower(data.analysis$gender) == 'male'] <- 0
-  data.analysis$gender[tolower(data.analysis$gender) == 'female'] <- 1
-  data.analysis$gender[data.analysis$gender != '0' & data.analysis$gender != '1'] <- 2
-  data.analysis$gender <- as.integer(data.analysis$gender)
+  data.analysis <- reCodeGender(data.analysis)
   data.analysis$age <- as.numeric(data.analysis$age)
   data.analysis$encounter.start <- format.date.in.char(data.analysis, "encounter.start")
   data.analysis$encounter.end <- format.date.in.char(data.analysis, "encounter.end")
