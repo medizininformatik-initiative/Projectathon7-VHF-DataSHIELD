@@ -169,8 +169,8 @@ transform.analysis <- function(data.analysis) {
   data.analysis$gender[data.analysis$gender != '0' & data.analysis$gender != '1'] <- 2
   data.analysis$gender <- as.integer(data.analysis$gender)
   data.analysis$age <- as.numeric(data.analysis$age)
-  data.analysis$encounter.start <- format.date.in.char(data.analysis$encounter.start)
-  data.analysis$encounter.end <- format.date.in.char(data.analysis$encounter.end)
+  data.analysis$encounter.start <- format.date.in.char(data.analysis, "encounter.start")
+  data.analysis$encounter.end <- format.date.in.char(data.analysis, "encounter.end")
   # TO DO: remove conditions that are not needed
   data.analysis$IdiopathicHypotension<-as.numeric(data.analysis$IdiopathicHypotension)
   data.analysis$AtrialFibrillation<-as.numeric(data.analysis$AtrialFibrillation)
@@ -204,8 +204,8 @@ transform.observation <- function(data.cohort) {
   data.observation$NTproBNP.unitLabel <- as.character(data.observation$NTproBNP.unitLabel)
   data.observation$NTproBNP.valueCodeableConcept.code <- as.character(data.observation$NTproBNP.valueCodeableConcept.code)
   data.observation$NTproBNP.valueCodeableConcept.system <- as.character(data.observation$NTproBNP.valueCodeableConcept.system)
-  data.observation$encounter.start <- format.date.in.char(data.observation$encounter.start)
-  data.observation$encounter.end <- format.date.in.char(data.observation$encounter.end)
+  data.observation$encounter.start <- format.date.in.char(data.observation, "encounter.start")
+  data.observation$encounter.end <- format.date.in.char(data.observation, "encounter.end")
 
   # Generate the patient identifier as work around for joining using subject with long strings (disclosure risk)
   data.observation <- generate.and.join.pid(data.cohort, data.observation)
