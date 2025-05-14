@@ -66,9 +66,9 @@ rm(data.cohort)
 project.name <- "VHF"
 
 # Use the specified import type (see .RProfile)
-import.type <- Sys.getenv(IMPORT_TYPE, NA)
+import.type <- Sys.getenv("IMPORT_TYPE", NA)
 
-if (input.type == Sys.getenv(BATCH_UPLOAD_TO_OPAL)) {
+if (import.type == Sys.getenv("BATCH_UPLOAD_TO_OPAL")) {
   # Load opal-for-r library
   # You need to install this library first before you can use it.
   require(opalr)
@@ -78,7 +78,7 @@ if (input.type == Sys.getenv(BATCH_UPLOAD_TO_OPAL)) {
   batch.upload.to.opal(connection, project.name, data.patient, data.observation, data.diagnosis, data.analysis)
   close.opal.connection(connection)
 
-} else if (input.type == Sys.getenv(CHUNK_UPLOAD_TO_OPAL)) {
+} else if (import.type == Sys.getenv("CHUNK_UPLOAD_TO_OPAL")) {
   # Load opal-for-r library
   # You need to install this library first before you can use it.
   require(opalr)
@@ -87,7 +87,7 @@ if (input.type == Sys.getenv(BATCH_UPLOAD_TO_OPAL)) {
   chunk.upload.to.opal(connection, project.name, data.patient, data.observation, data.diagnosis, data.analysis)
   close.opal.connection(connection)
 
-} else if (input.type == Sys.getenv(WRITE_TO_FILE)) {
+} else if (import.type == Sys.getenv("WRITE_TO_FILE")) {
   # write the normalized data partitions to files
   write.data.to.files(data.patient, data.observation, data.diagnosis, data.analysis)
 

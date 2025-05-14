@@ -79,7 +79,7 @@ unifyUnits <- function(cohort){
 data.cohort<-unifyUnits(data.cohort)
 #------------------------------------------------------------------------------------------------------------------------
 # Extract some information and recode given diagnosis  
-CreateAnalysisTable <- function(cohort, conditions) {
+CreateAnalysisTable <- function(cohort, diagnosis) {
   result <- cohort %>%
     group_by(encounter.id) %>%
     summarize(
@@ -94,10 +94,10 @@ CreateAnalysisTable <- function(cohort, conditions) {
     ) %>%
     unique()
   
-  conditionsReduced <- conditions %>%
+  conditionsReduced <- diagnosis %>%
     group_by(encounter.id) %>%
     summarize(
-                                                        # check possible conditions again
+      # check possible conditions again
       IdiopathicHypotension =as.numeric(any(grepl("I95.0", code))),
       AtrialFibrillation = as.numeric(any(grepl("I48.0|I48.1|I48.2|I48.9", code))),
       MyocardialInfarction = as.numeric(any(grepl("I21|I22|I25.2", code))),
@@ -164,8 +164,8 @@ transform.analysis <- function(data.analysis) {
   data.analysis$NTproBNP.valueQuantity.comparator <- as.character(data.analysis$NTproBNP.valueQuantity.comparator)
   data.analysis <- reCodeGender(data.analysis)
   data.analysis$age <- as.numeric(data.analysis$age)
-  data.analysis$encounter.start <- format.date.in.char(data.analysis, "encounter.start")
-  data.analysis$encounter.end <- format.date.in.char(data.analysis, "encounter.end")
+  data.analysis <- format.date.in.char(data.analysis, "encounter.start")
+  data.analysis <- format.date.in.char(data.analysis, "encounter.end")
   # TO DO: remove conditions that are not needed
   data.analysis$IdiopathicHypotension<-as.numeric(data.analysis$IdiopathicHypotension)
   data.analysis$AtrialFibrillation<-as.numeric(data.analysis$AtrialFibrillation)
@@ -199,8 +199,8 @@ transform.observation <- function(data.cohort) {
   data.observation$NTproBNP.unitLabel <- as.character(data.observation$NTproBNP.unitLabel)
   data.observation$NTproBNP.valueCodeableConcept.code <- as.character(data.observation$NTproBNP.valueCodeableConcept.code)
   data.observation$NTproBNP.valueCodeableConcept.system <- as.character(data.observation$NTproBNP.valueCodeableConcept.system)
-  data.observation$encounter.start <- format.date.in.char(data.observation, "encounter.start")
-  data.observation$encounter.end <- format.date.in.char(data.observation, "encounter.end")
+  data.observation <- format.date.in.char(data.observation, "encounter.start")
+  data.observation <- format.date.in.char(data.observation, "encounter.end")
 
   # Generate the patient identifier as work around for joining using subject with long strings (disclosure risk)
   data.observation <- generate.and.join.pid(data.cohort, data.observation)
@@ -472,8 +472,8 @@ close.opal.connection <- function(connection) {
 
 # The function saves the data partitions (tables) into data files. File names are prespecified.
 write.data.to.files <- function(data.patient, data.observation,  data.diagnosis, data.analysis) {
-  write.csv2(data.patient, file = "./data-patient.csv")
-  write.csv2(data.observation, file = "./data-observation.csv")
-  write.csv2(data.diagnosis, file = "./data-diagnosis.csv")
-  write.csv2(data.analysis, file = "./data-analysis.csv")
+  write.table(data.patient, file = "./data-patient.csv", sep = ",", row.names = F)
+  write.table(data.observation, file = "./data-observation.csv", sep = ",", row.names = F)
+  write.table(data.diagnosis, file = "./data-diagnosis.csv", sep = ",", row.names = F)
+  write.table(data.analysis, file = "./data-analysis.csv", sep = ",", row.names = F)
 }
