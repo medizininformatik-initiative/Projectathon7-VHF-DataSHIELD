@@ -79,7 +79,7 @@ unifyUnits <- function(cohort){
 data.cohort<-unifyUnits(data.cohort)
 #------------------------------------------------------------------------------------------------------------------------
 # Extract some information and recode given diagnosis  
-CreateAnalysisTable <- function(cohort, conditions) {
+CreateAnalysisTable <- function(cohort, diagnosis) {
   result <- cohort %>%
     group_by(encounter.id) %>%
     summarize(
@@ -94,10 +94,10 @@ CreateAnalysisTable <- function(cohort, conditions) {
     ) %>%
     unique()
   
-  conditionsReduced <- conditions %>%
+  conditionsReduced <- diagnosis %>%
     group_by(encounter.id) %>%
     summarize(
-                                                        # check possible conditions again
+      # check possible conditions again
       IdiopathicHypotension =as.numeric(any(grepl("I95.0", code))),
       AtrialFibrillation = as.numeric(any(grepl("I48.0|I48.1|I48.2|I48.9", code))),
       MyocardialInfarction = as.numeric(any(grepl("I21|I22|I25.2", code))),
@@ -472,8 +472,8 @@ close.opal.connection <- function(connection) {
 
 # The function saves the data partitions (tables) into data files. File names are prespecified.
 write.data.to.files <- function(data.patient, data.observation,  data.diagnosis, data.analysis) {
-  write.csv2(data.patient, file = "./data-patient.csv", sep = ",")
-  write.csv2(data.observation, file = "./data-observation.csv", sep = ",")
-  write.csv2(data.diagnosis, file = "./data-diagnosis.csv", sep = ",")
-  write.csv2(data.analysis, file = "./data-analysis.csv", sep = ",")
+  write.table(data.patient, file = "./data-patient.csv", sep = ",")
+  write.table(data.observation, file = "./data-observation.csv", sep = ",")
+  write.table(data.diagnosis, file = "./data-diagnosis.csv", sep = ",")
+  write.table(data.analysis, file = "./data-analysis.csv", sep = ",")
 }
