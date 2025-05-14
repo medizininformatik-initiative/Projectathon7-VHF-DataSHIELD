@@ -472,8 +472,8 @@ close.opal.connection <- function(connection) {
 
 # The function saves the data partitions (tables) into data files. File names are prespecified.
 write.data.to.files <- function(data.patient, data.observation,  data.diagnosis, data.analysis) {
-  write.csv2(data.patient, file = "./data-patient.csv")
-  write.csv2(data.observation, file = "./data-observation.csv")
-  write.csv2(data.diagnosis, file = "./data-diagnosis.csv")
-  write.csv2(data.analysis, file = "./data-analysis.csv")
+  write.csv2(data.patient, file = "./data-patient.csv", sep = ",")
+  write.csv2(data.observation, file = "./data-observation.csv", sep = ",")
+  write.csv2(data.diagnosis, file = "./data-diagnosis.csv", sep = ",")
+  write.csv2(data.analysis, file = "./data-analysis.csv", sep = ",")
 }
