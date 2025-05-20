@@ -379,7 +379,7 @@ create.opal.connection <- function() {
   connection <- opal.login(username = user.name,
                              password = pass.word,
                              url = opal.server.url, opts=list(ssl_verifyhost=0,ssl_verifypeer=0))
-
+  print(paste0("Logged in into DataSHIELD service '", connection$url, "'"))
   return (connection)
 }
 
@@ -401,6 +401,7 @@ create.project <- function(connection, project.name) {
 
 batch.upload.to.opal <- function(connection, project.name, data.patient, data.observation,  data.diagnosis, data.analysis) {
   # Import data into three tables, i.e., patient, observation, and diagnosis
+  print(paste0("Import data in batch mode into project '", project.name, "' on DataSHIELD service '", connection$url, "'"))
   import.patient(connection = connection, project.name = project.name, data.patient = data.patient)
   import.observation(connection = connection, project.name = project.name, data.observation = data.observation)
   import.diagnosis(connection = connection, project.name = project.name, data.diagnosis = data.diagnosis)
@@ -459,6 +460,7 @@ chunk.upload.analysis <- function(connection, project.name, data.analysis, chunk
 # This function summarizes the data import in chunks using table-specific functions
 chunk.upload.to.opal <- function(connection, project.name, data.patient, data.observation,  data.diagnosis, data.analysis) {
   chunk.size <- 10000
+  print(paste0("Import data in chunk mode into project '", project.name, "' on DataSHIELD service '", connection$url, "'"))
   chunk.upload.patient(connection, project.name, data.patient, chunk.size)
   chunk.upload.observation(connection, project.name, data.observation, chunk.size)
   chunk.upload.diagnosis(connection, project.name, data.diagnosis, chunk.size)
@@ -468,10 +470,13 @@ chunk.upload.to.opal <- function(connection, project.name, data.patient, data.ob
 # Logout from the OPAL server
 close.opal.connection <- function(connection) {
   opal.logout(connection)
+  rm(connection)
+  print(paste0("Logged out from DataSHIELD service '", connection$url, "'"))
 }
 
 # The function saves the data partitions (tables) into data files. File names are prespecified.
 write.data.to.files <- function(data.patient, data.observation,  data.diagnosis, data.analysis) {
+  print(paste0("Exporting data into four CSV files in a local directory."))
   write.table(data.patient, file = "./data-patient.csv", sep = ",", row.names = F)
   write.table(data.observation, file = "./data-observation.csv", sep = ",", row.names = F)
   write.table(data.diagnosis, file = "./data-diagnosis.csv", sep = ",", row.names = F)
