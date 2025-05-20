@@ -272,7 +272,7 @@ import.observation <- function(connection, project.name, data.observation) {
     ~name, ~valueType, ~`label:en`, ~`Namespace::Name`, ~unit, ~repeatable, ~index,
     "id", "integer", "id", NA, NA, 0, 15,
     "patient_id", "character", "patient.identifier", NA, NA, 1, 1,
-    "pid", "integer", "id", NA, NA, 1, 16,
+    "pid", "integer", "pid", NA, NA, 1, 16,
 #    "measurement_date", "date", "measurement.date", NA, NA, 0, 2,
     "nt_pro_bnp_value", "float", "ntprobnp.value", NA, NA, 1, 4,
     "nt_pro_bnp_comparator", "character", "ntprobnp.comparator", NA, NA, 1, 5,
